@@ -5,12 +5,13 @@ const DEFAULT_WIDTH = 10;
 const DEFAULT_SPEED = 8;
 
 export default class Paddle {
-  constructor(ctx, isLeft) {
+  constructor(ctx, isLeft, dbRef) {
     this.ctx = ctx;
     this.isLeft = isLeft;
     this.draw();
+    this.dbRef = dbRef;
     this.x = isLeft ? DEFAULT_WIDTH : CANVAS_WIDTH - 2 * DEFAULT_WIDTH;
-    this.y = (400 - DEFAULT_HEIGHT) / 2;
+    dbRef.on('value', d => this.y = d.val())
   }
 
   draw() {
@@ -36,20 +37,26 @@ export default class Paddle {
     return false;
   }
 
-  update(movDir) {
+  update(movDir, pos) {
+    let { y } = this;
+    if (y === undefined) {
+      return;
+    }
+
     if (movDir) {
       if (movDir === 'up') {
-        this.y -= DEFAULT_SPEED
+        y -= DEFAULT_SPEED
       } else {
-        this.y += DEFAULT_SPEED
+        y += DEFAULT_SPEED
       }
-      if (this.y < 0) {
-        this.y = 0;
-      } else if (this.y + DEFAULT_HEIGHT > CANVAS_HEIGHT) {
-        this.y = CANVAS_HEIGHT - DEFAULT_HEIGHT;
+      if (y < 0) {
+        y = 0;
+      } else if (y + DEFAULT_HEIGHT > CANVAS_HEIGHT) {
+        y = CANVAS_HEIGHT - DEFAULT_HEIGHT;
       }
     }
 
+    this.dbRef.set(y);
     this.draw();
   }
 }
