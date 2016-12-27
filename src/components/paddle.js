@@ -44,19 +44,22 @@ export default class Paddle {
     }
 
     if (movDir) {
+      let newY
       if (movDir === 'up') {
-        y -= DEFAULT_SPEED
+        newY = y - DEFAULT_SPEED
       } else {
-        y += DEFAULT_SPEED
+        newY = y + DEFAULT_SPEED
       }
-      if (y < 0) {
-        y = 0;
-      } else if (y + DEFAULT_HEIGHT > CANVAS_HEIGHT) {
-        y = CANVAS_HEIGHT - DEFAULT_HEIGHT;
+      if (newY < 0) {
+        newY = 0;
+      } else if (newY + DEFAULT_HEIGHT > CANVAS_HEIGHT) {
+        newY = CANVAS_HEIGHT - DEFAULT_HEIGHT;
+      }
+      if (newY !== y) {
+        this.dbRef.set(newY);
       }
     }
 
-    this.dbRef.set(y);
     this.draw();
   }
 }

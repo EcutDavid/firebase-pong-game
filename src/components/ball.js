@@ -4,32 +4,33 @@ const DEFAULT_RADIUS = 10;
 const DEFAULT_SPEED = { x: 4, y: 5 };
 
 export default class Ball {
-  constructor(ctx, leftPadlle, rightPaddle) {
+  constructor(ctx, leftPadlle, rightPaddle, boardInfoRef) {
     this.ctx = ctx;
-    this.reset();
     this.leftPadlle = leftPadlle;
     this.rightPaddle = rightPaddle;
-  }
-
-  reset() {
+    this.boardInfoRef = boardInfoRef;
     this.speed = DEFAULT_SPEED;
-    this.x = Math.random() * 200 + 100;
-    this.y = Math.random() * 200 + 100;
-    this.draw(DEFAULT_RADIUS);
+    boardInfoRef.on('value', node => {
+      const boardInfo = node.val();
+      this.x = boardInfo.ballX;
+      this.y = boardInfo.ballY;
+    });
   }
 
   draw() {
     const { x, y, ctx } = this;
+    if (x === undefined || y === undefined) {
+      return;
+    }
     ctx.beginPath();
     ctx.arc(x, y, DEFAULT_RADIUS, 0, 2*Math.PI);
     ctx.fill();
   }
 
-  update() {
+  update(isMainPlayer) {
     const { leftPadlle, rightPaddle, x, y, speed } = this;
-
-    if (x <= 0 || x >= CANVAS_WIDTH) {
-      this.reset();
+    if (x === undefined || y === undefined) {
+      return;
     }
 
     const ballPosInfo = { x, y, r: DEFAULT_RADIUS };
@@ -41,9 +42,15 @@ export default class Ball {
       this.speed.y = -this.speed.y;
     }
 
-    this.x += speed.x;
-    this.y += speed.y;
+    let newX = x + speed.x;
+    if (newX < -DEFAULT_RADIUS || newX > CANVAS_WIDTH + DEFAULT_RADIUS) {
+      newX = 200;
+    }
 
     this.draw();
+    isMainPlayer && this.boardInfoRef.update({
+      ballX: newX,
+      ballY: y + speed.y
+    });
   }
 }
