@@ -31,14 +31,12 @@ document.addEventListener('keyup', () => movDir = undefined);
 
 if (requestAnimationFrame) {
   function draw() {
-    setTimeout(() => {
       requestAnimationFrame(draw);
       context.clearRect(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
       resetBoard();
       ball.update(gameController.isUser1);
       leftPaddle.update(gameController.isUser1 ? movDir : undefined);
       rightPaddle.update(gameController.isUser2 ? movDir : undefined);
-    }, 17);
   }
   requestAnimationFrame(draw);
 } else {
